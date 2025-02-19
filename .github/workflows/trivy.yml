@@ -15,14 +15,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build an image from Dockerfile
-        run: docker build --tag $IMAGE_NAME:$IMAGE_TAG --target prod .
+        run: docker build --tag DockeyDoc/react-app:${{ github.sha }} --target prod .
 
       - name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: '$IMAGE_NAME:$IMAGE_TAG'
+          image-ref: 'DockeyDoc/react-app:${{ github.sha }}'
           format: 'table'
-          output: 'image-scan-results-$IMAGE_TAG.txt'
+          output: 'image-scan-results-${{ github.sha }}.txt'
           exit-code: 1
           ignore-unfixed: true
           vuln-type: 'os,library'
@@ -35,17 +35,17 @@ jobs:
           scan-dir: .
           hide-progress: true
           format: 'sarif'
-          output: 'config-scan-results-$IMAGE_TAG.sarif'
+          output: 'config-scan-results-${{ github.sha }}.sarif'
           exit-code: 1
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy image scan results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-image-report-$IMAGE_TAG
-          path: image-scan-results-$IMAGE_TAG.txt
+          name: trivy-image-report-${{ github.sha }}
+          path: image-scan-results-${{ github.sha }}
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: config-scan-results-$IMAGE_TAG.sarif
+          sarif_file: config-scan-results-${{ github.sha }}.sarif
