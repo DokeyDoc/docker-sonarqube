@@ -1,6 +1,7 @@
 name: Build and scan image with Trivy
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
