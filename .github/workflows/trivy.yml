@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   scan:
     name: Scan
@@ -12,33 +13,39 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Build an image from Dockerfile
-        run: docker build --tag DockeyDoc/react-app:${{ github.sha }} --target prod .
-         .
+        run: docker build --tag $IMAGE_NAME:$IMAGE_TAG --target prod .
+
       - name: Run Trivy vulnerability scanner on image
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: 'DockeyDoc/react-app:${{ github.sha }}'
+          image-ref: '$IMAGE_NAME:$IMAGE_TAG'
           format: 'table'
-          output: 'image-scan-results-${{ github.sha }}.txt'
+          output: 'image-scan-results-$IMAGE_TAG.txt'
+          exit-code: 1
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          severity: 'CRITICAL,HIGH'
+
       - name: Run Trivy vulnerability scanner on configuration files
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           scan-type: 'config'
+          scan-dir: .
           hide-progress: true
           format: 'sarif'
-          output: 'config-scan-results-${{ github.sha }}.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          output: 'config-scan-results-$IMAGE_TAG.sarif'
+          exit-code: 1
+          severity: 'CRITICAL,HIGH'
+
       - name: Upload Trivy image scan results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-image-report
-          path: image-scan-results-${{ github.sha }}.txt
-      - name: Upload Trivy image scan results
-        uses: actions/upload-artifact@v4
+          name: trivy-image-report-$IMAGE_TAG
+          path: image-scan-results-$IMAGE_TAG.txt
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: trivy-scan-report
-          path: config-scan-results-${{ github.sha }}.sarif
+          sarif_file: config-scan-results-$IMAGE_TAG.sarif
