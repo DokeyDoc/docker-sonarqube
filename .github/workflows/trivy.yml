@@ -13,11 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build an image from Dockerfile
-        run: docker build --tag DockeyDoc/react-app:${{ github.sha }} --target prod .
+        run: docker build --tag dockeydoc/react-app:${{ github.sha }} --target prod .
       - name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: 'DockeyDoc/react-app:${{ github.sha }}'
+          image-ref: 'dockeydoc/react-app:${{ github.sha }}'
           format: 'table'
           output: 'image-scan-results-${{ github.sha }}.txt'
           ignore-unfixed: true
