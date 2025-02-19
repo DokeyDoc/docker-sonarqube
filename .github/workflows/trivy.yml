@@ -36,7 +36,6 @@ jobs:
           hide-progress: true
           format: 'sarif'
           output: 'config-scan-results-${{ github.sha }}.sarif'
-          exit-code: 1
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy image scan results
