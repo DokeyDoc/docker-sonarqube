@@ -4,11 +4,14 @@ include .env
 
 watch:
 	@echo "ENVIRONMENT=dev" > ${ENV_FILE}
-	@docker compose up --build --watch
+	@docker compose up react-app --build --watch
 
 run: 
 	@echo "ENVIRONMENT=prod" > ${ENV_FILE}
-	@docker compose up -d --build 
+	@docker compose up react-app -d --build 
+
+sonar:
+	@docker compose up sonarqube sonarqube-database
 
 sonar-scan:
 	docker run \
